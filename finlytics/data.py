@@ -14,6 +14,16 @@ from typing import Final
 
 import pandas as pd
 
+# Optional: route TLS verification through the OS trust store. This lets the
+# toolkit work behind corporate TLS-intercepting proxies whose root CA is in
+# the system store but not in certifi. No-op if `truststore` isn't installed.
+try:  # pragma: no cover - environment dependent
+    import truststore as _truststore
+
+    _truststore.inject_into_ssl()
+except Exception:  # noqa: BLE001 - never fail import because of this helper
+    pass
+
 try:
     import yfinance as yf
 except ImportError as exc:  # pragma: no cover - dependency guard

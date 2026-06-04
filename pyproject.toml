@@ -12,7 +12,7 @@ license = { file = "LICENSE" }
 authors = [{ name = "kpassiasGit" }]
 keywords = ["finance", "stocks", "apy", "forecasting", "monte-carlo", "ai"]
 dependencies = [
-    "yfinance>=0.2.35",
+    "yfinance>=0.2.40",
     "pandas>=2.0",
     "numpy>=1.24",
 ]
@@ -21,8 +21,15 @@ dependencies = [
 ml = ["scikit-learn>=1.3"]
 ai = ["anthropic>=0.39"]
 charts = ["matplotlib>=3.7"]
+proxy = ["truststore>=0.9"]
 dev = ["pytest>=7.0"]
-all = ["scikit-learn>=1.3", "anthropic>=0.39", "matplotlib>=3.7", "pytest>=7.0"]
+all = [
+    "scikit-learn>=1.3",
+    "anthropic>=0.39",
+    "matplotlib>=3.7",
+    "truststore>=0.9",
+    "pytest>=7.0",
+]
 
 [project.scripts]
 finlytics = "finlytics.cli:main"

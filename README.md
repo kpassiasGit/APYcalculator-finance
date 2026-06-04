@@ -228,6 +228,25 @@ pytest -q
 
 ---
 
+## 🛠️ Troubleshooting
+
+**`No data returned` / `CERTIFICATE_VERIFY_FAILED` / empty history**
+
+- Make sure you're on a **recent `yfinance`** (`pip install -U yfinance`). Older
+  pinned versions (e.g. `0.2.35`) no longer work against Yahoo's API.
+- Behind a **corporate TLS-intercepting proxy**, install the proxy extra so TLS
+  is verified through your OS trust store:
+  ```bash
+  pip install -e ".[proxy]"   # adds `truststore`, injected automatically
+  ```
+  `yfinance`'s `curl_cffi` backend uses libcurl, so if it still fails, point it
+  at a CA bundle that includes your proxy's root certificate:
+  ```bash
+  export CURL_CA_BUNDLE=/path/to/combined-ca.pem   # Windows: set CURL_CA_BUNDLE=...
+  ```
+
+---
+
 ## 🗺️ Roadmap
 
 - [ ] Chart export (price + indicators + Monte-Carlo fan) via matplotlib
