@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Finlytics — AI Finance Toolkit</title>
+<style>
+  :root {
+    --bg: #0b0f17;
+    --bg-soft: #131a26;
+    --card: #161f2e;
+    --card-2: #1c2738;
+    --border: #243149;
+    --text: #e6edf6;
+    --muted: #8a97ad;
+    --accent: #5b8cff;
+    --accent-2: #34d4a8;
+    --danger: #ff6b6b;
+    --warn: #ffb454;
+    --radius: 16px;
+    --shadow: 0 10px 30px rgba(0,0,0,.35);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: radial-gradient(1200px 600px at 80% -10%, #1a2740 0%, var(--bg) 55%);
+    color: var(--text);
+    min-height: 100vh;
+  }
+  header {
+    padding: 28px 24px 8px;
+    max-width: 1080px;
+    margin: 0 auto;
+  }
+  .brand {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .logo {
+    width: 40px; height: 40px; border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    display: grid; place-items: center; font-weight: 800; color: #06121a;
+    box-shadow: var(--shadow);
+  }
+  h1 { font-size: 22px; margin: 0; letter-spacing: .2px; }
+  .tag { color: var(--muted); font-size: 13px; margin-top: 2px; }
+  main { max-width: 1080px; margin: 0 auto; padding: 16px 24px 64px; }
+  .tabs {
+    display: flex; gap: 6px; flex-wrap: wrap;
+    background: var(--bg-soft); padding: 6px; border-radius: 14px;
+    border: 1px solid var(--border); margin: 18px 0 22px;
+  }
+  .tab {
+    border: 0; background: transparent; color: var(--muted);
+    padding: 10px 16px; border-radius: 10px; cursor: pointer;
+    font-size: 14px; font-weight: 600; transition: .15s;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { background: var(--card-2); color: var(--text); box-shadow: var(--shadow); }
+  .panel { display: none; }
+  .panel.active { display: block; animation: fade .25s ease; }
+  @keyframes fade { from { opacity: 0; transform: translateY(6px);} to{opacity:1;transform:none;} }
+  .card {
+    background: linear-gradient(180deg, var(--card), var(--bg-soft));
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 22px; box-shadow: var(--shadow);
+  }
+  .row { display: flex; gap: 14px; flex-wrap: wrap; }
+  .field { flex: 1 1 160px; display: flex; flex-direction: column; gap: 6px; }
+  label { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .4px; }
+  input, select {
+    background: #0e1521; border: 1px solid var(--border); color: var(--text);
+    padding: 11px 12px; border-radius: 10px; font-size: 14px; outline: none;
+    transition: .15s;
+  }
+  input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(91,140,255,.18); }
+  .check { flex-direction: row; align-items: center; gap: 8px; }
+  .check input { width: 18px; height: 18px; }
+  .actions { margin-top: 18px; display: flex; align-items: center; gap: 14px; }
+  button.run {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    border: 0; color: #06121a; font-weight: 800; font-size: 14px;
+    padding: 12px 22px; border-radius: 12px; cursor: pointer;
+    transition: transform .12s, filter .12s;
+  }
+  button.run:hover { filter: brightness(1.06); transform: translateY(-1px); }
+  button.run:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+  .hint { color: var(--muted); font-size: 12.5px; }
+  .results { margin-top: 22px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 12px; }
+  .stat {
+    background: var(--card-2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px;
+  }
+  .stat .k { font-size: 11.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
+  .stat .v { font-size: 20px; font-weight: 700; margin-top: 6px; }
+  .pos { color: var(--accent-2); } .neg { color: var(--danger); }
+  .pill {
+    display: inline-block; padding: 5px 12px; border-radius: 999px;
+    font-weight: 800; font-size: 13px; letter-spacing: .3px;
+  }
+  .BUY { background: rgba(52,212,168,.16); color: var(--accent-2); }
+  .SELL { background: rgba(255,107,107,.16); color: var(--danger); }
+  .HOLD { background: rgba(255,180,84,.16); color: var(--warn); }
+  .briefing {
+    margin-top: 16px; background: #0e1521; border: 1px solid var(--border);
+    border-left: 3px solid var(--accent); border-radius: 10px; padding: 16px;
+    line-height: 1.55; font-size: 14px; color: #d7e1ef;
+  }
+  .reasons { margin: 12px 0 0; padding-left: 18px; color: var(--muted); font-size: 13px; }
+  .reasons li { margin: 4px 0; }
+  svg.spark { width: 100%; height: 90px; display: block; margin-top: 6px; }
+  .err { color: var(--danger); background: rgba(255,107,107,.08); border:1px solid rgba(255,107,107,.3);
+         padding: 12px 14px; border-radius: 10px; font-size: 13.5px; margin-top: 16px; }
+  details { margin-top: 14px; }
+  summary { cursor: pointer; color: var(--muted); font-size: 13px; }
+  pre { background:#0a0f18; border:1px solid var(--border); border-radius:10px; padding:14px;
+        overflow:auto; font-size:12.5px; color:#bcd; }
+  .spinner { width:18px;height:18px;border:3px solid var(--border);border-top-color:var(--accent);
+             border-radius:50%; animation:spin .8s linear infinite; display:none; }
+  @keyframes spin { to { transform: rotate(360deg);} }
+  .foot { text-align:center; color:var(--muted); font-size:12px; margin-top:28px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <div class="logo">₣</div>
+    <div>
+      <h1>Finlytics</h1>
+      <div class="tag">AI-powered finance &amp; stock analytics</div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="tabs" id="tabs">
+    <button class="tab active" data-tab="analyze">🤖 Analyze</button>
+    <button class="tab" data-tab="stock">📈 Stock</button>
+    <button class="tab" data-tab="forecast">🔮 Forecast</button>
+    <button class="tab" data-tab="portfolio">🧺 Portfolio</button>
+    <button class="tab" data-tab="apy">💰 APY</button>
+    <button class="tab" data-tab="fx">💱 FX</button>
+  </div>
+
+  <!-- ANALYZE -->
+  <section class="panel active" id="panel-analyze">
+    <div class="card">
+      <div class="row">
+        <div class="field"><label>Ticker</label><input id="an-symbol" value="AAPL" /></div>
+        <div class="field"><label>Period</label>
+          <select id="an-period"><option>6mo</option><option selected>1y</option><option>2y</option><option>5y</option></select>
+        </div>
+        <div class="field"><label>Horizon (days)</label><input id="an-horizon" type="number" value="30" /></div>
+      </div>
+      <div class="actions">
+        <button class="run" data-action="analyze">Run full analysis</button>
+        <div class="spinner" id="sp-analyze"></div>
+        <span class="hint">Stock metrics + ML forecast + Monte-Carlo + AI briefing</span>
+      </div>
+      <div class="results" id="res-analyze"></div>
+    </div>
+  </section>
+
+  <!-- STOCK -->
+  <section class="panel" id="panel-stock">
+    <div class="card">
+      <div class="row">
+        <div class="field"><label>Ticker</label><input id="st-symbol" value="MSFT" /></div>
+        <div class="field"><label>Period</label>
+          <select id="st-period"><option>6mo</option><option selected>1y</option><option>2y</option><option>5y</option></select>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="run" data-action="stock">Analyze stock</button>
+        <div class="spinner" id="sp-stock"></div>
+        <span class="hint">Indicators, risk metrics &amp; a BUY/HOLD/SELL signal</span>
+      </div>
+      <div class="results" id="res-stock"></div>
+    </div>
+  </section>
+
+  <!-- FORECAST -->
+  <section class="panel" id="panel-forecast">
+    <div class="card">
+      <div class="row">
+        <div class="field"><label>Ticker</label><input id="fc-symbol" value="NVDA" /></div>
+        <div class="field"><label>Period</label>
+          <select id="fc-period"><option>1y</option><option selected>2y</option><option>5y</option></select>
+        </div>
+        <div class="field"><label>Horizon (days)</label><input id="fc-horizon" type="number" value="30" /></div>
+      </div>
+      <div class="actions">
+        <button class="run" data-action="forecast">Forecast</button>
+        <div class="spinner" id="sp-forecast"></div>
+        <span class="hint">ML next-day model + 10k-path Monte-Carlo</span>
+      </div>
+      <div class="results" id="res-forecast"></div>
+    </div>
+  </section>
+
+  <!-- PORTFOLIO -->
+  <section class="panel" id="panel-portfolio">
+    <div class="card">
+      <div class="row">
+        <div class="field" style="flex:2 1 280px"><label>Tickers (comma separated)</label><input id="pf-symbols" value="AAPL, MSFT, GOOG" /></div>
+        <div class="field" style="flex:2 1 220px"><label>Weights (optional)</label><input id="pf-weights" value="0.5, 0.3, 0.2" /></div>
+        <div class="field"><label>Period</label>
+          <select id="pf-period"><option>6mo</option><option selected>1y</option><option>2y</option></select>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="run" data-action="portfolio">Analyze portfolio</button>
+        <div class="spinner" id="sp-portfolio"></div>
+        <span class="hint">Return, risk, Sharpe &amp; risk contributions</span>
+      </div>
+      <div class="results" id="res-portfolio"></div>
+    </div>
+  </section>
+
+  <!-- APY -->
+  <section class="panel" id="panel-apy">
+    <div class="card">
+      <div class="row">
+        <div class="field"><label>Amount</label><input id="ap-amount" type="number" value="1000" /></div>
+        <div class="field"><label>APY %</label><input id="ap-apy" type="number" step="0.01" value="5.05" /></div>
+        <div class="field"><label>Years</label><input id="ap-years" type="number" step="0.5" value="1" /></div>
+        <div class="field"><label>Monthly +</label><input id="ap-monthly" type="number" value="0" /></div>
+        <div class="field"><label>Base currency</label>
+          <select id="ap-currency"><option>EUR</option><option>USD</option><option>GBP</option></select>
+        </div>
+      </div>
+      <div class="actions">
+        <label class="field check" style="flex:0 0 auto"><input id="ap-compare" type="checkbox" /> Compare currencies (live FX)</label>
+        <button class="run" data-action="apy">Project</button>
+        <div class="spinner" id="sp-apy"></div>
+      </div>
+      <div class="results" id="res-apy"></div>
+    </div>
+  </section>
+
+  <!-- FX -->
+  <section class="panel" id="panel-fx">
+    <div class="card">
+      <div class="row">
+        <div class="field"><label>Amount</label><input id="fx-amount" type="number" value="500" /></div>
+        <div class="field"><label>From</label>
+          <select id="fx-from"><option>USD</option><option>EUR</option><option>GBP</option></select>
+        </div>
+        <div class="field"><label>To</label>
+          <select id="fx-to"><option>EUR</option><option>USD</option><option>GBP</option></select>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="run" data-action="fx">Convert</button>
+        <div class="spinner" id="sp-fx"></div>
+      </div>
+      <div class="results" id="res-fx"></div>
+    </div>
+  </section>
+
+  <div class="foot">Educational tool — not financial advice.</div>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+
+// Tab switching
+document.querySelectorAll(".tab").forEach(t => t.onclick = () => {
+  document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
+  document.querySelectorAll(".panel").forEach(x => x.classList.remove("active"));
+  t.classList.add("active");
+  $("panel-" + t.dataset.tab).classList.add("active");
+});
+
+async function post(path, body) {
+  const r = await fetch(path, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const data = await r.json();
+  if (!r.ok) throw new Error(data.detail || ("HTTP " + r.status));
+  return data;
+}
+
+const fmt = (n, d=2) => (n === null || n === undefined || Number.isNaN(n)) ? "—"
+  : Number(n).toLocaleString(undefined, { maximumFractionDigits: d });
+const pct = (n) => (n === null || Number.isNaN(n)) ? "—" : (n*100).toFixed(1) + "%";
+const cls = (n) => n >= 0 ? "pos" : "neg";
+
+function stat(k, v, klass="") { return `<div class="stat"><div class="k">${k}</div><div class="v ${klass}">${v}</div></div>`; }
+
+function sparkline(hist) {
+  if (!hist || !hist.closes || hist.closes.length < 2) return "";
+  const c = hist.closes, n = c.length, min = Math.min(...c), max = Math.max(...c);
+  const W = 600, H = 90, pad = 4;
+  const x = i => pad + (i/(n-1))*(W-2*pad);
+  const y = v => H-pad - ((v-min)/((max-min)||1))*(H-2*pad);
+  const d = c.map((v,i) => (i?"L":"M") + x(i).toFixed(1) + " " + y(v).toFixed(1)).join(" ");
+  const up = c[n-1] >= c[0];
+  const col = up ? "#34d4a8" : "#ff6b6b";
+  return `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+    <path d="${d}" fill="none" stroke="${col}" stroke-width="2"/>
+    <path d="${d} L ${W-pad} ${H} L ${pad} ${H} Z" fill="${col}" opacity="0.08"/>
+  </svg>`;
+}
+
+function renderStock(a, hist, target) {
+  const m = a, sig = a.signal;
+  target.innerHTML = `
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:8px">
+      <div style="font-size:26px;font-weight:800">${a.symbol}</div>
+      <div style="font-size:20px">$${fmt(a.last_price)}</div>
+      <span class="pill ${sig}">${sig}</span>
+      <span class="hint">score ${a.signal_score >= 0 ? "+" : ""}${a.signal_score}</span>
+    </div>
+    ${sparkline(hist)}
+    <div class="grid" style="margin-top:14px">
+      ${stat("Annual return", pct(m.annual_return), cls(m.annual_return))}
+      ${stat("Volatility", pct(m.annual_volatility))}
+      ${stat("Sharpe", fmt(m.sharpe), cls(m.sharpe))}
+      ${stat("Sortino", fmt(m.sortino), cls(m.sortino))}
+      ${stat("Max drawdown", pct(m.max_drawdown), "neg")}
+      ${stat("Beta", fmt(m.beta))}
+      ${stat("RSI", fmt(m.rsi, 0))}
+      ${stat("MACD hist", fmt(m.macd_hist, 2), cls(m.macd_hist))}
+    </div>
+    ${a.reasons && a.reasons.length ? `<ul class="reasons">${a.reasons.map(r=>`<li>${r}</li>`).join("")}</ul>` : ""}
+  `;
+}
+
+function renderForecast(d, target, prepend="") {
+  const f = d.ml_forecast, mc = d.monte_carlo;
+  target.innerHTML = prepend + `
+    <div class="grid">
+      ${stat("Model", f.model.replace(/-/g," "))}
+      ${stat("Next-day", f.direction + " (" + pct(f.predicted_next_day_return) + ")", cls(f.predicted_next_day_return))}
+      ${stat("Pred. price", "$" + fmt(f.predicted_price))}
+      ${stat("Dir. accuracy", pct(f.direction_accuracy))}
+    </div>
+    <div class="grid" style="margin-top:12px">
+      ${stat(mc.horizon_days + "d expected", "$" + fmt(mc.expected_price))}
+      ${stat("Median", "$" + fmt(mc.median_price))}
+      ${stat("90% range", "$" + fmt(mc.ci90[0]) + " – $" + fmt(mc.ci90[1]))}
+      ${stat("Prob. profit", pct(mc.prob_profit), cls(mc.prob_profit-0.5))}
+    </div>`;
+}
+
+const handlers = {
+  analyze: async () => {
+    const d = await post("/api/analyze", {
+      symbol: $("an-symbol").value.trim(),
+      period: $("an-period").value,
+      horizon: +$("an-horizon").value,
+    });
+    const t = $("res-analyze");
+    renderStock(d.analysis, d.history, t);
+    const extra = document.createElement("div");
+    renderForecast(d, extra, `<h3 style="margin:22px 0 8px;font-size:15px">Forecast</h3>`);
+    t.appendChild(extra);
+    const b = document.createElement("div");
+    b.className = "briefing";
+    b.innerHTML = "🧠 " + d.ai_briefing;
+    t.appendChild(b);
+  },
+  stock: async () => {
+    const d = await post("/api/stock", { symbol: $("st-symbol").value.trim(), period: $("st-period").value });
+    const hist = d.history; renderStock(d, hist, $("res-stock"));
+  },
+  forecast: async () => {
+    const d = await post("/api/forecast", {
+      symbol: $("fc-symbol").value.trim(), period: $("fc-period").value, horizon: +$("fc-horizon").value,
+    });
+    renderForecast(d, $("res-forecast"));
+  },
+  portfolio: async () => {
+    const symbols = $("pf-symbols").value.split(",").map(s=>s.trim()).filter(Boolean);
+    const wraw = $("pf-weights").value.split(",").map(s=>s.trim()).filter(Boolean);
+    const weights = wraw.length ? wraw.map(Number) : null;
+    const d = await post("/api/portfolio", { symbols, weights, period: $("pf-period").value });
+    const rc = d.risk_contributions || {};
+    $("res-portfolio").innerHTML = `
+      <div class="grid">
+        ${stat("Annual return", pct(d.annual_return), cls(d.annual_return))}
+        ${stat("Volatility", pct(d.annual_volatility))}
+        ${stat("Sharpe", fmt(d.sharpe), cls(d.sharpe))}
+        ${stat("Max drawdown", pct(d.max_drawdown), "neg")}
+      </div>
+      <h3 style="margin:20px 0 8px;font-size:14px;color:var(--muted)">Risk contribution</h3>
+      <div class="grid">${Object.entries(rc).map(([k,v])=>stat(k, pct(v))).join("")}</div>`;
+  },
+  apy: async () => {
+    const d = await post("/api/apy", {
+      amount: +$("ap-amount").value, apy: +$("ap-apy").value, years: +$("ap-years").value,
+      monthly: +$("ap-monthly").value, currency: $("ap-currency").value, compare: $("ap-compare").checked,
+    });
+    if (d.mode === "compare") {
+      const entries = Object.entries(d.results);
+      $("res-apy").innerHTML = `<h3 style="margin:0 0 10px;font-size:14px;color:var(--muted)">Final value in ${d.base} after growth</h3>
+        <div class="grid">${entries.map(([c,r])=>
+          stat(c + " · " + r.apy_percent + "%", fmt(r.final_value) + " " + d.base)).join("")}</div>
+        <div class="grid" style="margin-top:12px">${entries.map(([c,r])=>
+          stat(c + " profit", (r.profit>=0?"+":"") + fmt(r.profit), cls(r.profit))).join("")}</div>`;
+    } else {
+      $("res-apy").innerHTML = `<div class="grid">
+        ${stat("Principal", fmt(d.principal))}
+        ${stat("Contributions", fmt(d.contributions))}
+        ${stat("Final value", fmt(d.final_value), "pos")}
+        ${stat("Profit", (d.profit>=0?"+":"") + fmt(d.profit), cls(d.profit))}
+      </div>`;
+    }
+  },
+  fx: async () => {
+    const d = await post("/api/fx", {
+      amount: +$("fx-amount").value, from_currency: $("fx-from").value, to_currency: $("fx-to").value,
+    });
+    $("res-fx").innerHTML = `<div class="grid">
+      ${stat("Rate", fmt(d.rate, 6))}
+      ${stat(d.from + " → " + d.to, fmt(d.converted) + " " + d.to, "pos")}
+    </div>`;
+  },
+};
+
+document.querySelectorAll("button.run").forEach(btn => {
+  btn.onclick = async () => {
+    const action = btn.dataset.action;
+    const res = $("res-" + action), sp = $("sp-" + action);
+    res.innerHTML = ""; sp.style.display = "inline-block"; btn.disabled = true;
+    try {
+      await handlers[action]();
+    } catch (e) {
+      res.innerHTML = `<div class="err">⚠️ ${e.message}</div>`;
+    } finally {
+      sp.style.display = "none"; btn.disabled = false;
+    }
+  };
+});
+</script>
+</body>
+</html>

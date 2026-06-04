@@ -80,9 +80,24 @@ All defaults can be overridden via environment variables:
 
 ---
 
-## 🧑‍💻 Usage
+## 🖥️ Web interface (easiest way to start)
 
-Finlytics is driven by subcommands and prints JSON.
+Finlytics ships with a clean, modern single-page UI — tabs for **Analyze,
+Stock, Forecast, Portfolio, APY and FX**, with live price sparklines, metric
+cards, a BUY/HOLD/SELL badge and the AI briefing.
+
+```bash
+pip install -e ".[web]"      # fastapi + uvicorn
+finlytics serve              # then open http://127.0.0.1:8000
+```
+
+Options: `finlytics serve --host 0.0.0.0 --port 8080`.
+
+---
+
+## 🧑‍💻 Command-line usage
+
+Finlytics is also driven by subcommands and prints JSON.
 
 ### APY & compounding
 

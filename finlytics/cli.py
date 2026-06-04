@@ -8,6 +8,7 @@ Subcommands::
     finlytics forecast   ML next-day forecast + Monte-Carlo projection
     finlytics portfolio  Risk/return analytics for a basket of assets
     finlytics analyze    Everything above for one ticker, with an AI briefing
+    finlytics serve      Launch the modern web interface
 """
 
 from __future__ import annotations
@@ -108,6 +109,14 @@ def _cmd_portfolio(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_serve(args: argparse.Namespace) -> int:
+    from finlytics.web.server import run
+
+    print(f"Finlytics web UI ->  http://{args.host}:{args.port}  (Ctrl+C to stop)")
+    run(host=args.host, port=args.port)
+    return 0
+
+
 def _cmd_analyze(args: argparse.Namespace) -> int:
     from finlytics.ai.forecast import Forecaster, monte_carlo
     from finlytics.ai.insights import generate_insight
@@ -183,6 +192,11 @@ def build_parser() -> argparse.ArgumentParser:
     p_an.add_argument("--period", default="2y")
     p_an.add_argument("--horizon", type=int, default=30)
     p_an.set_defaults(func=_cmd_analyze)
+
+    p_serve = sub.add_parser("serve", help="Launch the web interface")
+    p_serve.add_argument("--host", default="127.0.0.1")
+    p_serve.add_argument("--port", type=int, default=8000)
+    p_serve.set_defaults(func=_cmd_serve)
 
     return parser
 
