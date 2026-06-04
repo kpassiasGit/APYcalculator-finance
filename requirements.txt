@@ -1,0 +1,13 @@
+# Core (required)
+yfinance>=0.2.35
+pandas>=2.0
+numpy>=1.24
+
+# Optional — better ML model (a NumPy fallback is used if absent)
+scikit-learn>=1.3 ; extra == "ml"
+
+# Optional — LLM natural-language analyst
+anthropic>=0.39 ; extra == "ai"
+
+# Optional — chart export
+matplotlib>=3.7 ; extra == "charts"

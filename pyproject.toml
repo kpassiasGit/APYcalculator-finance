@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "finlytics"
+version = "2.0.0"
+description = "AI-powered personal finance and stock analytics toolkit"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [{ name = "kpassiasGit" }]
+keywords = ["finance", "stocks", "apy", "forecasting", "monte-carlo", "ai"]
+dependencies = [
+    "yfinance>=0.2.35",
+    "pandas>=2.0",
+    "numpy>=1.24",
+]
+
+[project.optional-dependencies]
+ml = ["scikit-learn>=1.3"]
+ai = ["anthropic>=0.39"]
+charts = ["matplotlib>=3.7"]
+dev = ["pytest>=7.0"]
+all = ["scikit-learn>=1.3", "anthropic>=0.39", "matplotlib>=3.7", "pytest>=7.0"]
+
+[project.scripts]
+finlytics = "finlytics.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["finlytics*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
